@@ -1,0 +1,5 @@
+inputdir = /mapr/my.cluster.com/baseballdata/
+outputdir = /mapr/my.cluster.com/baseballsummary2/
+playerdir = /mapr/my.cluster.com/playersummary2/
+atbattablename = atbats2
+playertablename = players2
