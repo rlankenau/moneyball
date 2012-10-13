@@ -1,0 +1,123 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[top=1in,bottom=1in,right=1in,left=1in]{geometry}
+\begin{document}
+\begin{center}
+\begin{tikzpicture}[scale=.032]
+
+\coordinate (HomePlate) at (0,0);
+\coordinate (LeftFieldFoul) at (-251,251);
+\coordinate (RightFieldFoul) at (251,251);
+\coordinate (CenterField) at (0,400);
+\coordinate (CenterFieldLeft) at (-52.6610, 400);
+\coordinate (CenterFieldRight) at (52.6610, 400);
+\coordinate (Pitcher) at (0,60.5);
+\coordinate (ThirdBase) at (-63.6, 63.6);
+\coordinate (FirstBase) at (63.6, 63.6);
+\coordinate (SecondBase) at (0,127.3);
+
+
+\draw (HomePlate) -- (LeftFieldFoul);
+\draw (HomePlate) -- (RightFieldFoul);
+\draw (LeftFieldFoul) -- (CenterFieldLeft);
+\draw (RightFieldFoul) -- (CenterFieldRight);
+\draw (CenterFieldLeft) -- (CenterFieldRight);
+
+\draw (ThirdBase) -- (SecondBase);
+\draw (FirstBase) -- (SecondBase);
+
+\draw (Pitcher) circle (9) node{1};
+\draw (Pitcher) node[left=7pt]{15};
+\draw (Pitcher) node[right=7pt]{13};
+\draw (-8.4866,8.4866) arc (135:405:12);
+\draw (0,38) node {1s};
+\draw (0,15) node {2};
+\draw (0,-20) node {2f};
+\draw (89.7167,89.7167) arc (20:160:95);
+\draw (36.416,36.416) arc (45:135:51.5);
+\draw (26.5965,64.2096) arc (67.5:112.5:69.5);
+\draw (17.68,17.68) arc (45:135:25);
+
+\draw (0,69.5) -- (0,200);
+\draw (9.5671,23.0970) -- (138.862,335.242);
+\draw (-9.5671, 23.0970) -- (-138.862,335.242);
+\draw (-9.0716, 68.9054) -- (CenterFieldLeft);
+\draw (9.0716, 68.9054) -- (CenterFieldRight);
+\draw (0,0) -- (216.5460, 276.8831);
+\draw (0,0) -- (-216.5460, 276.8831);
+\end{tikzpicture}
+\end{center}
+\begin{table}[!h]
+\subfloat[Positions]{
+\begin{tabular}{rl}
+1 & Catcher\\ 
+2 & Pitcher\\ 
+3 & First Base\\ 
+4 & Second Base\\ 
+5 & Third Base\\ 
+6 & Shortstop\\ 
+7 & Left Field\\ 
+8 & Center Field\\ 
+9 & Right Field\\
+\end{tabular}}
+\subfloat[Play Type]{
+\begin{tabular}{rl}
+(none) & Out \\
+S & Single \\
+D & Double \\
+T & Triple \\
+HR & Home Run \\
+HP & Hit by pitch \\
+W & Walk \\
+IW & Int. Walk \\
+WP & Wild Pitch \\
+\end{tabular}}
+\subfloat[Description]{
+\begin{tabular}{rl}
+G & Ground Ball \\
+L & Line Drive \\
+P & Pop Fly \\
+F & Fly Ball \\
+B & Prefix indicating bunt \\
+\end{tabular}}
+\subfloat[Pitches]{
+\begin{tabular}{rl}
+C & Called Strike \\
+S & Swinging Strike \\
+B & Ball \\
+F & Foul Ball \\
+L & Foul Bunt \\
+M & Missed Bunt \\
+P & Pitchout \\
+Q & Pitchout (strike) \\
+R & Pitchout (foul) \\
+I & Int. Ball \\
+H & Hit by pitch \\
+K & Strike (unknown) \\
+U & Unknown \\
+n\footnotemark & Pickoff \\
++n\footnotemark & Pickoff by catcher \\
+\end{tabular}}
+\end{table}  
+\footnotetext[1]{n is 1, 2, or 3, corresponding to base thrown to.  This should not be confused with player number.}
+\footnotetext[2]{See above}
+Sample Records
+\begin{align}
+start&,\overbrace{grudm001}^\text{Player ID},\overbrace{"Mark Grudzielanek"}^\text{Player Name},\overbrace{0}^\text{Team},\overbrace{1}^\text{Batting Order},\overbrace{6}^\text{Position} \nonumber \\
+play&,\overbrace{1,0}^\text{Inning},\overbrace{aaroh101}^\text{Player ID},\overbrace{12}^\text{Count},\overbrace{BF1CX}^\text{Pitches},\overbrace{\underbrace{S}_\text{Play Type}\underbrace{7}_\text{Location}/\underbrace{L7S}_\text{Description}.\underbrace{3-H;1-2}_\text{Runner movement}}^\text{Play} \nonumber
+\end{align}
+\begin{description}
+\item[Hadoop] A platform for storage and processing of large data sets. Hadoop consists of a distributed filesystem, Java interfaces, and services for managing distribution of tasks. Core code is maintained by the Apache Software Foundation.
+\item[MapR distribution for Hadooop] MapR provides an enterprise-ready distribution for Hadoop including the core open source components as well as a high-performance distributed filesystem, high-availability services, and easy-to-use management interface.
+\item[MapReduce] A programming model for parallel processing, introduced in Google's 2004 paper\footnote{http://research.google.com/archive/mapreduce.html}. Hadoop provides a framework for running MapReduce jobs written in Java.
+\item[Pig] A high level data flow language for processing data. Pig programs describe steps to be executed on sets of tuples, and are executed by running one or more MapReduce jobs.
+\item[Hive] A framework for executing SQL-like queries on large data sets. The queries are executed as MapReduce jobs.
+\end{description}
+\end{document}
