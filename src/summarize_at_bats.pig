@@ -4,10 +4,8 @@ raw = LOAD '$inputdir' USING PigStorage(',');
 SPLIT raw INTO players IF $0 MATCHES 'start' OR $0 MATCHES 'sub', plays IF $0 MATCHES 'play';
 
 -- Extract all players
-byname = GROUP players BY $2;
-player_ids0 = FOREACH byname GENERATE $0, FLATTEN($1);
-player_ids1 = FOREACH player_ids0 GENERATE $2 AS id, $0 AS name;
-player_ids = distinct player_ids1;
+players_name_id = FOREACH players GENERATE $1 as id, $2 as name;
+player_ids = distinct players_name_id;
 
 -- Write out all players for query through Hive
 STORE player_ids INTO '$playerdir' using PigStorage(',');
@@ -72,7 +70,7 @@ stripped_plays = FOREACH final_plays GENERATE id, position, placement, bases;
 
 grouped_plays = GROUP stripped_plays BY (id,position,placement,bases);
 
-counted_plays = FOREACH grouped_plays GENERATE FLATTEN(group), COUNT($1);
+counted_plays = FOREACH grouped_plays GENERATE group, COUNT($1);
 
 STORE counted_plays INTO '$outputdir' USING PigStorage(',');
 
