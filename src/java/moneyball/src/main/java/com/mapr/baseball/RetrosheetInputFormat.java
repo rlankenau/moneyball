@@ -1,4 +1,5 @@
 package com.mapr.baseball;
+import java.lang.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.util.*;
 import org.apache.hadoop.mapreduce.*;

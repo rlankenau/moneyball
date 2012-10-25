@@ -1,5 +1,6 @@
 package com.mapr.baseball;
 
+import java.util.*;
 import java.io.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.util.*;
@@ -17,6 +18,7 @@ public class RetrosheetRecordReader extends RecordReader<LongWritable, Text> {
 	private int maxLineLength;
 	private LongWritable key;
 	private Text value;
+	private Text deferred_line = null;
 
 	public void close() throws IOException {
 		if (in != null) {
@@ -33,6 +35,8 @@ public class RetrosheetRecordReader extends RecordReader<LongWritable, Text> {
 	{
 		if(end-start == 0)
 			return 0;
+		if(pos > end)
+			return 1.0f;
 		return (float)pos/(float)(end-start);
 	}
 
@@ -56,6 +60,7 @@ public class RetrosheetRecordReader extends RecordReader<LongWritable, Text> {
 		final Path file = split.getPath();
 		Configuration conf = context.getConfiguration();
 		FileSystem fs = file.getFileSystem(conf);
+
 
 		start = split.getStart();
 		end = start + split.getLength();
@@ -84,13 +89,13 @@ public class RetrosheetRecordReader extends RecordReader<LongWritable, Text> {
 			}
 		}
 		this.pos = start;
-
 	}
 
 	public boolean nextKeyValue() throws IOException
 	{
 		Text line = new Text();
 		Text newline = new Text("\n");
+		Date d = new Date();
 
 		if(key == null)
 			key = new LongWritable();
@@ -101,6 +106,15 @@ public class RetrosheetRecordReader extends RecordReader<LongWritable, Text> {
 		value.clear();
 
 		int newSize = 0;
+
+		if(deferred_line != null) {
+			/* We held onto a line on the last invocation. Copy it in before we start */
+			value.append(deferred_line.getBytes(), 0, deferred_line.getLength());
+			value.append(newline.getBytes(), 0, newline.getLength());
+			this.pos+=deferred_line.getLength();
+			deferred_line=null;
+		}
+
 		newSize = in.readLine(line, maxLineLength);
 		value.append(line.getBytes(), 0, line.getLength());
 		value.append(newline.getBytes(), 0, newline.getLength());
@@ -111,17 +125,21 @@ public class RetrosheetRecordReader extends RecordReader<LongWritable, Text> {
 			*/
 			key = null;
 			value = null;
+			d = new Date();
+			
 			return false;
 		}
 		while(true) {
 			line.clear();
-			
 			newSize = in.readLine(line, maxLineLength);
 			if(isStartLine(line))
 			{
-				/* Rewind the inputstream to the start of this line */
-				filein.seek(this.pos);
+				/* Save this line for the next record */
+				this.deferred_line = line;
 				/* Return the current version. */
+				return true;
+			} else if (newSize == 0) {
+				/* At EOF */
 				return true;
 			} else {
 				value.append(line.getBytes(), 0, line.getLength());
