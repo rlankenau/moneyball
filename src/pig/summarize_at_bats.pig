@@ -70,7 +70,7 @@ stripped_plays = FOREACH final_plays GENERATE id, position, placement, bases;
 
 grouped_plays = GROUP stripped_plays BY (id,position,placement,bases);
 
-counted_plays = FOREACH grouped_plays GENERATE group, COUNT($1);
+counted_plays = FOREACH grouped_plays GENERATE group.id, group.position, group.placement, group.bases, COUNT($1);
 
 STORE counted_plays INTO '$outputdir' USING PigStorage(',');
 
