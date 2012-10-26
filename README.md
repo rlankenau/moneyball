@@ -3,9 +3,8 @@ mapr-moneyball
 
 Pig code for analysis of baseball statistics
 
-The current version of this script uses only built-in Pig features to parse raw baseball data from retrosheet.org and produce summary statistics.
+Scripts:
 
-TODO:
-- Replace regex field transformation with UDF
-- Introduce game-aware LoadFunc to allow per-game statistics to be calculated
-- Add better documentation of data format
+  - summarize\_at\_bats.pig: Generate a single statistic representing the number of times a ball was hit to a specific fielder.
+  - summarize\_UDF.pig: OBSOLETE, code to parse the event field from play records
+  - summarize\_loader.pig: Parse all records, taking into account game context.  This script produces a highly denormalized version of the data, including data such as runners on base, fielders, field conditions, and current game and player statistics.  This script does everything summarize\_UDF.pig did, and more.
