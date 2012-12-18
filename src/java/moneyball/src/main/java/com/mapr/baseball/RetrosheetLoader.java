@@ -538,7 +538,7 @@ public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
 									System.err.println("Couldn't parse event data: " + elems[6]);
 								} else {
 									/* Figure out player movement so we can update everything in order */
-									if(!m.group(5).equals("")) {
+									if(m.group(5) != null && !m.group(5).equals("")) {
 										/* We have some player movement */
 										String[] runner_mvmt = m.group(5).split(";");
 										/* Scan the whole thing in case the movement is out of order */
@@ -620,47 +620,52 @@ public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
 										}
 									}
 									currentPlay.set(RetrosheetLoader.PLAY_BATTER_RBIS, current_player.rbis);
-									if(m.group(1).equals("S")) {
-										runner_on_first = current_batter;	
-										defense[1].pitcher_hits_allowed++;
-										current_player.rbis+=possible_rbis;
-										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Single");
-									} else if (m.group(1).equals("D")) {
-										runner_on_second = current_batter;	
-										defense[1].pitcher_hits_allowed++;
-										current_player.rbis+=possible_rbis;
-										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Double");
-									} else if (m.group(1).equals("T")) {
-										runner_on_third = current_batter;	
-										defense[1].pitcher_hits_allowed++;
-										current_player.rbis+=possible_rbis;
-										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Triple");
-									} else if (m.group(1).equals("HR")) {
-										if(current_player.home_team) {
-											home_score++;
-										} else {
-											away_score++;
+									if(m.group(1) != null) {
+										if(m.group(1).equals("S")) {
+											runner_on_first = current_batter;	
+											defense[1].pitcher_hits_allowed++;
+											current_player.rbis+=possible_rbis;
+											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Single");
+										} else if (m.group(1).equals("D")) {
+											runner_on_second = current_batter;	
+											defense[1].pitcher_hits_allowed++;
+											current_player.rbis+=possible_rbis;
+											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Double");
+										} else if (m.group(1).equals("T")) {
+											runner_on_third = current_batter;	
+											defense[1].pitcher_hits_allowed++;
+											current_player.rbis+=possible_rbis;
+											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Triple");
+										} else if (m.group(1).equals("HR")) {
+											if(current_player.home_team) {
+												home_score++;
+											} else {
+												away_score++;
+											}
+											defense[1].pitcher_hits_allowed++;
+											current_player.rbis+=possible_rbis;
+											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Home run");
+										} else if (m.group(1).equals("HP")) {
+											runner_on_first = current_batter;
+											defense[1].pitcher_beans++;
+											current_player.hbp_so_far++;
+											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Hit by pitch");
+										} else if (m.group(1).equals("WP")) {
+											defense[1].pitcher_wild_pitches++;
+											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Wild pitch");
+										} else if (m.group(1).equals("W")) {
+											runner_on_first = current_batter;	
+											defense[1].pitcher_walks_allowed++;
+											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Walk");
+										} else if (m.group(1).equals("K")) {
+											defense[1].pitcher_strikeouts++;
+											current_player.strikeouts_so_far++;
+											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Strikeout");
+										} else if (m.group(1).equals("")) {
+											/* Out */
+											current_player.outs_so_far++;
 										}
-										defense[1].pitcher_hits_allowed++;
-										current_player.rbis+=possible_rbis;
-										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Home run");
-									} else if (m.group(1).equals("HP")) {
-										runner_on_first = current_batter;
-										defense[1].pitcher_beans++;
-										current_player.hbp_so_far++;
-										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Hit by pitch");
-									} else if (m.group(1).equals("WP")) {
-										defense[1].pitcher_wild_pitches++;
-										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Wild pitch");
-									} else if (m.group(1).equals("W")) {
-										runner_on_first = current_batter;	
-										defense[1].pitcher_walks_allowed++;
-										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Walk");
-									} else if (m.group(1).equals("K")) {
-										defense[1].pitcher_strikeouts++;
-										current_player.strikeouts_so_far++;
-										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Strikeout");
-									} else if (m.group(1).equals("")) {
+									} else {
 										/* Out */
 										current_player.outs_so_far++;
 									}
