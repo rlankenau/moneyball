@@ -110,7 +110,89 @@ import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
 }
 */
 
-public class RetrosheetLoader extends LoadFunc {
+public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
+
+	public static int PLAY_INNING = 0;
+	public static int PLAY_INNING_HALF = 1;
+	public static int PLAY_ATBAT_OF_GAME = 2;
+	public static int PLAY_EVENT_OF_GAME = 3;
+	public static int PLAY_PITCHER = 4;
+	public static int PLAY_CATCHER = 5;
+	public static int PLAY_FIRST_BASEMAN = 6;
+	public static int PLAY_SECOND_BASEMAN = 7;
+	public static int PLAY_THIRD_BASEMAN = 8;
+	public static int PLAY_SHORTSTOP = 9;
+	public static int PLAY_LEFTFIELDER = 10;
+	public static int PLAY_CENTERFIELDER = 11;
+	public static int PLAY_RIGHTFIELDER = 12;
+	public static int PLAY_DESIGNATED_HITTER = 13;
+	public static int PLAY_RUNNER_ON_FIRST = 14;
+	public static int PLAY_RUNNER_ON_SECOND = 15;
+	public static int PLAY_RUNNER_ON_THIRD = 16;
+	public static int PLAY_RUNNERS_ON_BASE = 17;
+	public static int PLAY_CURRENT_BATTER = 18;
+	public static int PLAY_CURRENT_BATTER_AT_BAT= 19;
+	public static int PLAY_BATTER_POSITION = 20;
+	public static int PLAY_COUNT = 21;
+	public static int PLAY_BATTER_HITS_SO_FAR = 22;
+	public static int PLAY_BATTER_HBP_SO_FAR = 23;
+	public static int PLAY_BATTER_WALKS_SO_FAR = 24;
+	public static int PLAY_BATTER_OUTS_SO_FAR = 25;
+	public static int PLAY_PITCHER_BATTERS_PITCHED_TO = 26;
+	public static int PLAY_PITCHER_HITS_ALLOWED = 27;
+	public static int PLAY_PITCHER_WALKS_ALLOWED = 28;
+	public static int PLAY_PITCHER_WILD_PITCHES = 29;
+	public static int PLAY_PITCHER_BATTERS_BEANED = 30;
+	public static int PLAY_PITCHER_STRIKEOUTS = 31;
+	public static int PLAY_HOME_SCORE = 32;
+	public static int PLAY_AWAY_SCORE = 33;
+	public static int PLAY_BATTER_RBIS = 34;
+	public static int PLAY_RESULT = 35;
+	public static int PLAY_RBIS_ON_PLAY = 36;
+
+	
+
+	public static int GAME_ID = 0;
+	public static int GAME_SITE = 1;
+	public static int GAME_DATE_DAY = 2;
+	public static int GAME_DATE_MONTH = 3;
+	public static int GAME_DATE_YEAR = 4;
+	public static int GAME_DAY_NIGHT = 5;
+	public static int GAME_START_HOUR = 6;
+	public static int GAME_START_MINUTES = 7;
+	public static int GAME_OF_DAY = 8;
+	public static int GAME_IS_DOUBLE_HEADER = 9;
+	public static int GAME_HOME_TEAM= 10;
+	public static int GAME_AWAY_TEAM= 11;
+	public static int GAME_USE_DESIGNATED_HITTER = 12;
+	public static int GAME_HOME_UMPIRE = 13;
+	public static int GAME_1ST_BASE_UMPIRE = 14;
+	public static int GAME_2ND_BASE_UMPIRE = 15;
+	public static int GAME_3RD_BASE_UMPIRE = 16;
+	public static int GAME_LEFT_FIELD_UMPIRE = 17;
+	public static int GAME_RIGHT_FIELD_UMPIRE = 18;
+	public static int GAME_WINNING_PITCHER = 19;
+	public static int GAME_LOSING_PITCHER = 20;
+	public static int GAME_HOW_SCORED= 21;
+	public static int GAME_SCORER = 22;
+	public static int GAME_INPUTTER = 23;
+	public static int GAME_TRANSLATOR= 24;
+	public static int GAME_HAS_PITCHES = 25;
+	public static int GAME_WIND_DIRECTION = 26;
+	public static int GAME_WIND_SPEED = 27;
+	public static int GAME_TEMPERATURE = 28;
+	public static int GAME_SKY_CONDITION= 29;
+	public static int GAME_FIELD_CONDITION= 30;
+	public static int GAME_PRECIPITATION = 31;
+	public static int GAME_ATTENDANCE = 32;
+	public static int GAME_FINAL_HOME_SCORE = 33;
+	public static int GAME_FINAL_AWAY_SCORE = 34;
+	public static int GAME_WINNER = 35;
+	public static int GAME_EVENTS_IN_GAME = 36;
+	public static int GAME_BATTERS_IN_GAME = 37;
+	public static int GAME_DURATION= 38;
+	public static int GAME_COUNTED_AS_SAVE = 39;
+	public static int GAME_EVENTS = 40;
 
 	Pattern event_pattern;
 	class RetrosheetPlayer {
@@ -159,53 +241,114 @@ public class RetrosheetLoader extends LoadFunc {
 		tupleFactory = TupleFactory.getInstance();	
 	}
 
-	public ResourceSchema getSchema() {
-		List<FieldSchema> fieldSchemaList = new ArrayList<FieldSchema>();
+	public ResourceStatistics getStatistics(String location,
+                                 org.apache.hadoop.mapreduce.Job job)
+                                 throws IOException
+	{
+		return null;
+	}
 
-		fieldSchemaList.add( new FieldSchema("game_id", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("park_id", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("game_date_day", org.apache.pig.data.DataType.INTEGER) );
-		fieldSchemaList.add( new FieldSchema("game_date_month", org.apache.pig.data.DataType.INTEGER) );
-		fieldSchemaList.add( new FieldSchema("game_date_year", org.apache.pig.data.DataType.INTEGER) );
-		fieldSchemaList.add( new FieldSchema("day_night", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("start_time_hours", org.apache.pig.data.DataType.INTEGER) );
-		fieldSchemaList.add( new FieldSchema("start_time_minutes", org.apache.pig.data.DataType.INTEGER) );
-		fieldSchemaList.add( new FieldSchema("game_of_day", org.apache.pig.data.DataType.INTEGER) );
-		fieldSchemaList.add( new FieldSchema("double_header", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("home_team", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("away_team", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("designated_hitter_used", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("umpire_home", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("umpire_1st_base", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("umpire_2nd_base", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("umpire_3rd_base", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("umpire_left_field", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("umpire_right_field", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("winning_pitcher", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("losing_pitcher", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("scoring_method", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("scorer", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("recorder", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("translator", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("pitches_recorded", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("wind_direction", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("wind_speed", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("temperature", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("sky", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("field_condition", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("precipitation", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("attendance", org.apache.pig.data.DataType.INTEGER) );
-		fieldSchemaList.add( new FieldSchema("final_home_score", org.apache.pig.data.DataType.INTEGER) );
-		fieldSchemaList.add( new FieldSchema("final_away_score", org.apache.pig.data.DataType.INTEGER) );
-		fieldSchemaList.add( new FieldSchema("winning_team", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("events_in_game", org.apache.pig.data.DataType.INTEGER) );
-		fieldSchemaList.add( new FieldSchema("batters_in_game", org.apache.pig.data.DataType.INTEGER) );
-		fieldSchemaList.add( new FieldSchema("game_duration", org.apache.pig.data.DataType.INTEGER));
-		fieldSchemaList.add( new FieldSchema("save", org.apache.pig.data.DataType.CHARARRAY) );
-		fieldSchemaList.add( new FieldSchema("events", org.apache.pig.data.DataType.BAG) );
+	public void setPartitionFilter(Expression partitionFilter)
+	{}
 
+	public String[] getPartitionKeys(String location,
+                          org.apache.hadoop.mapreduce.Job job)
+                          throws IOException
+	{ 
+		return null;
+	}
 
-		return new ResourceSchema( new Schema(fieldSchemaList) );
+	public ResourceSchema getSchema(java.lang.String str, org.apache.hadoop.mapreduce.Job job) {
+		FieldSchema[] playFields = new FieldSchema[37];
+
+		playFields[RetrosheetLoader.PLAY_INNING] = new FieldSchema("inning", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_INNING_HALF] = new FieldSchema("half_of_inning", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_ATBAT_OF_GAME] = new FieldSchema("atbat_of_game", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_EVENT_OF_GAME] = new FieldSchema("event_of_game", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_PITCHER] = new FieldSchema("pitcher", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_CATCHER] = new FieldSchema("catcher", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_FIRST_BASEMAN] = new FieldSchema("first_baseman", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_SECOND_BASEMAN] = new FieldSchema("second_baseman", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_THIRD_BASEMAN] = new FieldSchema("third_baseman", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_SHORTSTOP] = new FieldSchema("shortstop", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_LEFTFIELDER] = new FieldSchema("left_fielder", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_CENTERFIELDER] = new FieldSchema("center_fielder", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_RIGHTFIELDER] = new FieldSchema("right_fielder", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_DESIGNATED_HITTER] = new FieldSchema("designated_hitter", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_RUNNER_ON_FIRST] = new FieldSchema("runner_on_first", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_RUNNER_ON_SECOND] = new FieldSchema("runner_on_second", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_RUNNER_ON_THIRD] = new FieldSchema("runner_on_third", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_RUNNERS_ON_BASE] = new FieldSchema("num_runners_on_base", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_CURRENT_BATTER] = new FieldSchema("batter", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_CURRENT_BATTER_AT_BAT] = new FieldSchema("batter_atbat", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_BATTER_POSITION] = new FieldSchema("batter_position", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_COUNT] = new FieldSchema("count", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_BATTER_HITS_SO_FAR] = new FieldSchema("batter_hits_so_far", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_BATTER_HBP_SO_FAR] = new FieldSchema("batter_hit_by_pitch_so_far", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_BATTER_WALKS_SO_FAR] = new FieldSchema("batter_walks_so_far", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_BATTER_OUTS_SO_FAR] = new FieldSchema("batter_outs_so_far", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_PITCHER_BATTERS_PITCHED_TO] = new FieldSchema("pitcher_batters_pitched_to", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_PITCHER_HITS_ALLOWED] = new FieldSchema("pitcher_hits_allowed", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_PITCHER_WALKS_ALLOWED] = new FieldSchema("pitcher_walks_allowed", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_PITCHER_WILD_PITCHES] = new FieldSchema("pitcher_wild_pitches", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_PITCHER_BATTERS_BEANED] = new FieldSchema("pitcher_batters_beaned", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_PITCHER_STRIKEOUTS] = new FieldSchema("pitcher_strikeouts", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_HOME_SCORE] = new FieldSchema("current_home_score", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_AWAY_SCORE] = new FieldSchema("current_away_score", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_BATTER_RBIS] = new FieldSchema("batter_rbis", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_RESULT] = new FieldSchema("play_result", org.apache.pig.data.DataType.CHARARRAY);
+		playFields[RetrosheetLoader.PLAY_RBIS_ON_PLAY] = new FieldSchema("rbis_on_play", org.apache.pig.data.DataType.INTEGER);
+
+		FieldSchema[] gameFields = new FieldSchema[41];
+		
+		gameFields[RetrosheetLoader.GAME_ID] = new FieldSchema("game_id", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_SITE] = new FieldSchema("game_site_code", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_DATE_DAY] = new FieldSchema("game_date_day", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_DATE_MONTH] = new FieldSchema("game_date_month", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_DATE_YEAR] = new FieldSchema("game_date_year", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_DAY_NIGHT] = new FieldSchema("game_day_or_night", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_START_HOUR] = new FieldSchema("game_start_hour", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_START_MINUTES] = new FieldSchema("game_start_minutes", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_OF_DAY] = new FieldSchema("game_of_day", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_IS_DOUBLE_HEADER] = new FieldSchema("game_is_double_header", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_HOME_TEAM] = new FieldSchema("game_home_team", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_AWAY_TEAM] = new FieldSchema("game_away_team", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_USE_DESIGNATED_HITTER] = new FieldSchema("game_uses_designated_hitter", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_HOME_UMPIRE] = new FieldSchema("game_home_umpire", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_1ST_BASE_UMPIRE] = new FieldSchema("game_1st_base_ump", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_2ND_BASE_UMPIRE] = new FieldSchema("game_2nd_base_ump", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_3RD_BASE_UMPIRE] = new FieldSchema("game_3rd_base_ump", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_LEFT_FIELD_UMPIRE] = new FieldSchema("game_left_field_ump", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_RIGHT_FIELD_UMPIRE] = new FieldSchema("game_right_field_ump", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_WINNING_PITCHER] = new FieldSchema("game_winning_pitcher", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_LOSING_PITCHER] = new FieldSchema("game_losing_pitcher", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_HOW_SCORED] = new FieldSchema("game_how_scored", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_SCORER] = new FieldSchema("game_scorer", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_INPUTTER] = new FieldSchema("game_inputter", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_TRANSLATOR] = new FieldSchema("game_translator", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_HAS_PITCHES] = new FieldSchema("game_has_pitches", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_WIND_DIRECTION] = new FieldSchema("game_wind_direction", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_WIND_SPEED] = new FieldSchema("game_wind_speed", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_TEMPERATURE] = new FieldSchema("game_temperature", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_SKY_CONDITION] = new FieldSchema("game_sky_condition", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_FIELD_CONDITION] = new FieldSchema("game_field_condition", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_PRECIPITATION] = new FieldSchema("game_precipitation", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_ATTENDANCE] = new FieldSchema("game_attendance", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_FINAL_HOME_SCORE] = new FieldSchema("game_final_home_score", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_FINAL_AWAY_SCORE] = new FieldSchema("game_final_away_score", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_WINNER] = new FieldSchema("game_winner", org.apache.pig.data.DataType.CHARARRAY);
+		gameFields[RetrosheetLoader.GAME_EVENTS_IN_GAME] = new FieldSchema("game_total_events_in_game", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_BATTERS_IN_GAME] = new FieldSchema("game_total_batters_in_game", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_DURATION] = new FieldSchema("game_duration", org.apache.pig.data.DataType.INTEGER);
+		gameFields[RetrosheetLoader.GAME_COUNTED_AS_SAVE] = new FieldSchema("game_counted_as_save", org.apache.pig.data.DataType.CHARARRAY);
+		FieldSchema eventsField =  new FieldSchema("game_events", org.apache.pig.data.DataType.BAG);
+		FieldSchema eventsTuple = new FieldSchema("", org.apache.pig.data.DataType.TUPLE);
+		eventsField.schema = new Schema(eventsTuple);
+		eventsTuple.schema = new Schema(Arrays.asList(playFields));
+		gameFields[RetrosheetLoader.GAME_EVENTS] = eventsField;
+		
+
+		return new ResourceSchema( new Schema(Arrays.asList(gameFields)) );
 	}
 
 	@Override
@@ -247,7 +390,6 @@ public class RetrosheetLoader extends LoadFunc {
 
 		Tuple game = tupleFactory.newTuple(41);		
 		DataBag events = bagFactory.newDefaultBag();
-		game.set(40, events);
 
 		try {
 			if(reader.nextKeyValue()) {
@@ -264,27 +406,27 @@ public class RetrosheetLoader extends LoadFunc {
 						} else if (linetype.equals("id")) {
 							/* ID record.  If we've set the ID, this is an error */
 							/* Raw game id */
-							game.set(0, elems[1]);
+							game.set(RetrosheetLoader.GAME_ID, elems[1]);
 							/* We can get the home team from the ID */
-							game.set(10, elems[1].substring(0,3));
+							game.set(RetrosheetLoader.GAME_HOME_TEAM, elems[1].substring(0,3));
 							/* Day, Month, Year */
-							game.set(2, Integer.parseInt(elems[1].substring(3,7)));
-							game.set(3, Integer.parseInt(elems[1].substring(7,9)));
-							game.set(4, Integer.parseInt(elems[1].substring(9,11)));
+							game.set(RetrosheetLoader.GAME_DATE_DAY, Integer.parseInt(elems[1].substring(3,7)));
+							game.set(RetrosheetLoader.GAME_DATE_MONTH, Integer.parseInt(elems[1].substring(7,9)));
+							game.set(RetrosheetLoader.GAME_DATE_YEAR, Integer.parseInt(elems[1].substring(9,11)));
 							int game_of_day = Integer.parseInt(elems[1].substring(11,12));
 							switch(game_of_day) {
 								case 0:
 									/* First game of the day, not a double header */
-									game.set(8, 1);
-									game.set(9, "no");
+									game.set(RetrosheetLoader.GAME_OF_DAY, 1);
+									game.set(RetrosheetLoader.GAME_IS_DOUBLE_HEADER, "no");
 									break;
 								case 1:
-									game.set(8, 1);
-									game.set(9, "yes");
+									game.set(RetrosheetLoader.GAME_OF_DAY, 1);
+									game.set(RetrosheetLoader.GAME_IS_DOUBLE_HEADER, "yes");
 									break;
 								case 2:
-									game.set(8, 2);
-									game.set(9, "yes");
+									game.set(RetrosheetLoader.GAME_OF_DAY, 2);
+									game.set(RetrosheetLoader.GAME_IS_DOUBLE_HEADER, "yes");
 									break;
 							}
 						} else if (linetype.equals("start")) {
@@ -321,7 +463,7 @@ public class RetrosheetLoader extends LoadFunc {
 
 								/* We can set event of game now.  at-bat has to wait until we parse out stolen bases, etc. */
 								event_of_game++;
-								currentPlay.set(3, event_of_game);
+								currentPlay.set(RetrosheetLoader.PLAY_EVENT_OF_GAME, event_of_game);
 							
 								/* Check if the batter has changed. */
 								current_batter = elems[3].trim();
@@ -330,27 +472,34 @@ public class RetrosheetLoader extends LoadFunc {
 								{
 									atbat_of_game++;
 								} 
-								currentPlay.set(2, atbat_of_game);
+								currentPlay.set(RetrosheetLoader.PLAY_ATBAT_OF_GAME, atbat_of_game);
 								
 								/* Set inning and whether it is top or bottom */
-								currentPlay.set(0, Integer.parseInt(elems[1]));
+								currentPlay.set(RetrosheetLoader.PLAY_INNING, Integer.parseInt(elems[1]));
 								if(elems[2].trim() == "0"){
-									currentPlay.set(1, "top");
+									currentPlay.set(RetrosheetLoader.PLAY_INNING_HALF, "top");
 									defense = away_players;
 								} else {
-									currentPlay.set(1, "bottom");
+									currentPlay.set(RetrosheetLoader.PLAY_INNING_HALF, "bottom");
 									defense = home_players;
 								}
 
 								/* Set the fielders */	
-								for(int i=1;i<10;i++) {
-									currentPlay.set(i+3, defense[i].player_id);
-								}	
+								currentPlay.set(RetrosheetLoader.PLAY_PITCHER, defense[1].player_id);
+								currentPlay.set(RetrosheetLoader.PLAY_CATCHER, defense[2].player_id);
+								currentPlay.set(RetrosheetLoader.PLAY_FIRST_BASEMAN, defense[3].player_id);
+								currentPlay.set(RetrosheetLoader.PLAY_SECOND_BASEMAN, defense[4].player_id);
+								currentPlay.set(RetrosheetLoader.PLAY_THIRD_BASEMAN, defense[5].player_id);
+								currentPlay.set(RetrosheetLoader.PLAY_SHORTSTOP, defense[6].player_id);
+								currentPlay.set(RetrosheetLoader.PLAY_LEFTFIELDER, defense[7].player_id);
+								currentPlay.set(RetrosheetLoader.PLAY_CENTERFIELDER, defense[8].player_id);
+								currentPlay.set(RetrosheetLoader.PLAY_RIGHTFIELDER, defense[9].player_id);
+								currentPlay.set(RetrosheetLoader.PLAY_DESIGNATED_HITTER, defense[10].player_id);
 								
 								/* Set the runners on base */
-								currentPlay.set(13, runner_on_first);
-								currentPlay.set(14, runner_on_second);
-								currentPlay.set(15, runner_on_third);
+								currentPlay.set(RetrosheetLoader.PLAY_RUNNER_ON_FIRST, runner_on_first);
+								currentPlay.set(RetrosheetLoader.PLAY_RUNNER_ON_SECOND, runner_on_second);
+								currentPlay.set(RetrosheetLoader.PLAY_RUNNER_ON_THIRD, runner_on_third);
 								int number_on_base = 0;
 								if(!runner_on_first.equals(""))
 									number_on_base++;
@@ -358,30 +507,30 @@ public class RetrosheetLoader extends LoadFunc {
 									number_on_base++;
 								if(!runner_on_third.equals(""))
 									number_on_base++;
-								currentPlay.set(16, number_on_base);
+								currentPlay.set(RetrosheetLoader.PLAY_RUNNERS_ON_BASE, number_on_base);
 
-								currentPlay.set(17, current_batter);
+								currentPlay.set(RetrosheetLoader.PLAY_CURRENT_BATTER, current_batter);
 								current_player.at_bat_number++;
-								currentPlay.set(18, current_player.at_bat_number);
-								currentPlay.set(19, current_player.position);
+								currentPlay.set(RetrosheetLoader.PLAY_CURRENT_BATTER_AT_BAT, current_player.at_bat_number);
+								currentPlay.set(RetrosheetLoader.PLAY_BATTER_POSITION, current_player.position);
 								try {
 									int count = Integer.parseInt(elems[4]);
-									currentPlay.set(20, count/10 + "-" + count%10);
+									currentPlay.set(RetrosheetLoader.PLAY_COUNT, count/10 + "-" + count%10);
 								} catch (Exception e) {
-									currentPlay.set(20, "Unknown");
+									currentPlay.set(RetrosheetLoader.PLAY_COUNT, "Unknown");
 								}
-								currentPlay.set(21, current_player.hits_so_far);
-								currentPlay.set(22, current_player.hbp_so_far);
-								currentPlay.set(23, current_player.walks_so_far);
-								currentPlay.set(24, current_player.outs_so_far);
-								currentPlay.set(25, defense[1].batters_pitched_to);
-								currentPlay.set(26, defense[1].pitcher_hits_allowed);
-								currentPlay.set(27, defense[1].pitcher_walks_allowed);
-								currentPlay.set(28, defense[1].pitcher_wild_pitches);
-								currentPlay.set(29, defense[1].pitcher_beans);
-								currentPlay.set(30, defense[1].pitcher_strikeouts);
-								currentPlay.set(31, home_score);
-								currentPlay.set(32, away_score);
+								currentPlay.set(RetrosheetLoader.PLAY_BATTER_HITS_SO_FAR, current_player.hits_so_far);
+								currentPlay.set(RetrosheetLoader.PLAY_BATTER_HBP_SO_FAR, current_player.hbp_so_far);
+								currentPlay.set(RetrosheetLoader.PLAY_BATTER_WALKS_SO_FAR, current_player.walks_so_far);
+								currentPlay.set(RetrosheetLoader.PLAY_BATTER_OUTS_SO_FAR, current_player.outs_so_far);
+								currentPlay.set(RetrosheetLoader.PLAY_PITCHER_BATTERS_PITCHED_TO, defense[1].batters_pitched_to);
+								currentPlay.set(RetrosheetLoader.PLAY_PITCHER_HITS_ALLOWED, defense[1].pitcher_hits_allowed);
+								currentPlay.set(RetrosheetLoader.PLAY_PITCHER_WALKS_ALLOWED, defense[1].pitcher_walks_allowed);
+								currentPlay.set(RetrosheetLoader.PLAY_PITCHER_WILD_PITCHES, defense[1].pitcher_wild_pitches);
+								currentPlay.set(RetrosheetLoader.PLAY_PITCHER_BATTERS_BEANED, defense[1].pitcher_beans);
+								currentPlay.set(RetrosheetLoader.PLAY_PITCHER_STRIKEOUTS, defense[1].pitcher_strikeouts);
+								currentPlay.set(RetrosheetLoader.PLAY_HOME_SCORE, home_score);
+								currentPlay.set(RetrosheetLoader.PLAY_AWAY_SCORE, away_score);
 				
 								/* Parse the event itself */
 								Matcher m = event_pattern.matcher(elems[6]);				
@@ -470,22 +619,22 @@ public class RetrosheetLoader extends LoadFunc {
 											}
 										}
 									}
-									currentPlay.set(34, current_player.rbis);
+									currentPlay.set(RetrosheetLoader.PLAY_BATTER_RBIS, current_player.rbis);
 									if(m.group(1).equals("S")) {
 										runner_on_first = current_batter;	
 										defense[1].pitcher_hits_allowed++;
 										current_player.rbis+=possible_rbis;
-										currentPlay.set(33, "Single");
+										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Single");
 									} else if (m.group(1).equals("D")) {
 										runner_on_second = current_batter;	
 										defense[1].pitcher_hits_allowed++;
 										current_player.rbis+=possible_rbis;
-										currentPlay.set(33, "Double");
+										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Double");
 									} else if (m.group(1).equals("T")) {
 										runner_on_third = current_batter;	
 										defense[1].pitcher_hits_allowed++;
 										current_player.rbis+=possible_rbis;
-										currentPlay.set(33, "Triple");
+										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Triple");
 									} else if (m.group(1).equals("HR")) {
 										if(current_player.home_team) {
 											home_score++;
@@ -494,32 +643,36 @@ public class RetrosheetLoader extends LoadFunc {
 										}
 										defense[1].pitcher_hits_allowed++;
 										current_player.rbis+=possible_rbis;
-										currentPlay.set(33, "Home run");
+										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Home run");
 									} else if (m.group(1).equals("HP")) {
 										runner_on_first = current_batter;
 										defense[1].pitcher_beans++;
 										current_player.hbp_so_far++;
-										currentPlay.set(33, "Hit by pitch");
+										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Hit by pitch");
 									} else if (m.group(1).equals("WP")) {
 										defense[1].pitcher_wild_pitches++;
-										currentPlay.set(33, "Wild pitch");
+										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Wild pitch");
 									} else if (m.group(1).equals("W")) {
 										runner_on_first = current_batter;	
 										defense[1].pitcher_walks_allowed++;
-										currentPlay.set(33, "Walk");
+										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Walk");
 									} else if (m.group(1).equals("K")) {
 										defense[1].pitcher_strikeouts++;
 										current_player.strikeouts_so_far++;
+										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Strikeout");
 									} else if (m.group(1).equals("")) {
 										/* Out */
 										current_player.outs_so_far++;
 									}
 									/* Write out rbis and rbis_so_far. */
-									currentPlay.set(35, possible_rbis);
+									currentPlay.set(RetrosheetLoader.PLAY_RBIS_ON_PLAY, possible_rbis);
 									
 								}
 								events.add(currentPlay);
-							} catch (Exception e) { }	
+							} catch (Exception e) { 
+								System.err.println("Error with play: " + e);
+								e.printStackTrace();
+							}	
 						} else if (linetype.equals("version")) {
 							/* File version info.  Skip for now */
 						} else if (linetype.equals("info")) {
@@ -528,13 +681,13 @@ public class RetrosheetLoader extends LoadFunc {
 							if (infotype.equals("hometeam")) {
 								/* Ignore, this is already set by ID */
 							} else if (infotype.equals("site")) {
-								game.set(1, elems[2]);	
+								game.set(RetrosheetLoader.GAME_SITE, elems[2]);	
 							} else if (infotype.equals("date")) {
 								/* Already set in the ID */
 							} else if (infotype.equals("number")) {
 								/* Already set in the ID */
 							} else if (infotype.equals("daynight")) {
-								game.set(5, elems[2]);
+								game.set(RetrosheetLoader.GAME_DAY_NIGHT, elems[2]);
 							} else if (infotype.equals("starttime")) {
 								String[] time_elems = elems[2].split(":");
 								int hour = 0, minutes = 0;
@@ -551,56 +704,56 @@ public class RetrosheetLoader extends LoadFunc {
 										hour = Integer.parseInt(elems[2].substring(0, length-2));
 									}
 								}
-								game.set(6, hour);
-								game.set(7, minutes);
+								game.set(RetrosheetLoader.GAME_START_HOUR, hour);
+								game.set(RetrosheetLoader.GAME_START_MINUTES, minutes);
 							} else if( infotype.equals("visteam")){
-								game.set(11, elems[2]);	
+								game.set(RetrosheetLoader.GAME_AWAY_TEAM, elems[2]);	
 							} else if (infotype.equals("usedh")) {
-								game.set(12, elems[2]);	
+								game.set(RetrosheetLoader.GAME_USE_DESIGNATED_HITTER, elems[2]);	
 							} else if (infotype.equals("umphome")) {
-								game.set(13, elems[2]);	
+								game.set(RetrosheetLoader.GAME_HOME_UMPIRE, elems[2]);	
 							} else if (infotype.equals("ump1b")) {
-								game.set(14, elems[2]);	
+								game.set(RetrosheetLoader.GAME_1ST_BASE_UMPIRE, elems[2]);	
 							} else if (infotype.equals("ump2b")) {
-								game.set(15, elems[2]);	
+								game.set(RetrosheetLoader.GAME_2ND_BASE_UMPIRE, elems[2]);	
 							} else if (infotype.equals("ump3b")) {
-								game.set(16, elems[2]);	
+								game.set(RetrosheetLoader.GAME_3RD_BASE_UMPIRE, elems[2]);	
 							} else if (infotype.equals("umplf")) {
-								game.set(17, elems[2]);
+								game.set(RetrosheetLoader.GAME_LEFT_FIELD_UMPIRE, elems[2]);	
 							} else if (infotype.equals("umprf")) {
-								game.set(18, elems[2]);
+								game.set(RetrosheetLoader.GAME_RIGHT_FIELD_UMPIRE, elems[2]);	
 							} else if (infotype.equals("wp")) {
-								game.set(19, elems[2]);
+								game.set(RetrosheetLoader.GAME_WINNING_PITCHER, elems[2]);
 							} else if (infotype.equals("lp")) {
-								game.set(20, elems[2]);
+								game.set(RetrosheetLoader.GAME_LOSING_PITCHER, elems[2]);
 							} else if (infotype.equals("howscored")) {
-								game.set(21, elems[2]);
+								game.set(RetrosheetLoader.GAME_HOW_SCORED, elems[2]);
 							} else if (infotype.equals("scorer")) {
-								game.set(22, elems[2]);
+								game.set(RetrosheetLoader.GAME_SCORER, elems[2]);
 							} else if (infotype.equals("inputter")) {
-								game.set(23, elems[2]);
+								game.set(RetrosheetLoader.GAME_INPUTTER, elems[2]);
 							} else if (infotype.equals("translator")) {
-								game.set(24, elems[2]);	
+								game.set(RetrosheetLoader.GAME_TRANSLATOR, elems[2]);	
 							} else if (infotype.equals("pitches")) {
-								game.set(25, elems[2]);
+								game.set(RetrosheetLoader.GAME_HAS_PITCHES, elems[2]);
 							} else if (infotype.equals("winddir")) {
-								game.set(26, elems[2]);
+								game.set(RetrosheetLoader.GAME_WIND_DIRECTION, elems[2]);
 							} else if (infotype.equals("windspeed")) {
-								game.set(27, Integer.parseInt(elems[2]));
+								game.set(RetrosheetLoader.GAME_WIND_SPEED, Integer.parseInt(elems[2]));
 							} else if (infotype.equals("temp")) {
-								game.set(28, Integer.parseInt(elems[2]));
+								game.set(RetrosheetLoader.GAME_TEMPERATURE, Integer.parseInt(elems[2]));
 							} else if (infotype.equals("sky")) {
-								game.set(29, elems[2]);
+								game.set(RetrosheetLoader.GAME_SKY_CONDITION, elems[2]);
 							} else if (infotype.equals("fieldcond")) {
-								game.set(30, elems[2]);
+								game.set(RetrosheetLoader.GAME_FIELD_CONDITION, elems[2]);
 							} else if (infotype.equals("precip")) {
-								game.set(31, elems[2]);	
+								game.set(RetrosheetLoader.GAME_PRECIPITATION, elems[2]);	
 							} else if (infotype.equals("attendance")) {
-								game.set(32, Integer.parseInt(elems[2]));
+								game.set(RetrosheetLoader.GAME_ATTENDANCE, Integer.parseInt(elems[2]));
 							} else if (infotype.equals("timeofgame")) {
-								game.set(38, Integer.parseInt(elems[2]));
+								game.set(RetrosheetLoader.GAME_DURATION, Integer.parseInt(elems[2]));
 							} else if (infotype.equals("save")) {
-								game.set(39, elems[2]);
+								game.set(RetrosheetLoader.GAME_COUNTED_AS_SAVE, elems[2]);
 							}
 						} else if (linetype.equals("data")) {
 							/* Other game data.  Generally earned runs for the pitchers */
@@ -609,7 +762,16 @@ public class RetrosheetLoader extends LoadFunc {
 						System.err.println("Malformed data: '" + line + "' exception: " + e);
 					}
 				}
-				System.out.println("Finished parsing record.");
+				game.set(RetrosheetLoader.GAME_EVENTS, events);
+				game.set(RetrosheetLoader.GAME_FINAL_HOME_SCORE, home_score);
+				game.set(RetrosheetLoader.GAME_FINAL_AWAY_SCORE, away_score);
+				game.set(RetrosheetLoader.GAME_EVENTS_IN_GAME, event_of_game);
+				game.set(RetrosheetLoader.GAME_BATTERS_IN_GAME, atbat_of_game);
+				if(home_score>away_score) {
+					game.set(RetrosheetLoader.GAME_WINNER, game.get(RetrosheetLoader.GAME_HOME_TEAM));
+				} else if (away_score>home_score) {
+					game.set(RetrosheetLoader.GAME_WINNER, game.get(RetrosheetLoader.GAME_AWAY_TEAM));
+				}
 				return game;
 			
 			}
