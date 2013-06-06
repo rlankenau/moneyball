@@ -149,6 +149,8 @@ public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
 	public static int PLAY_BATTER_RBIS = 34;
 	public static int PLAY_RESULT = 35;
 	public static int PLAY_RBIS_ON_PLAY = 36;
+	public static int PLAY_FIELDER = 37;
+	public static int PLAY_TRAJECTORY = 38;
 
 	
 
@@ -259,7 +261,7 @@ public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
 	}
 
 	public ResourceSchema getSchema(java.lang.String str, org.apache.hadoop.mapreduce.Job job) {
-		FieldSchema[] playFields = new FieldSchema[37];
+		FieldSchema[] playFields = new FieldSchema[39];
 
 		playFields[RetrosheetLoader.PLAY_INNING] = new FieldSchema("inning", org.apache.pig.data.DataType.INTEGER);
 		playFields[RetrosheetLoader.PLAY_INNING_HALF] = new FieldSchema("half_of_inning", org.apache.pig.data.DataType.INTEGER);
@@ -298,6 +300,8 @@ public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
 		playFields[RetrosheetLoader.PLAY_BATTER_RBIS] = new FieldSchema("batter_rbis", org.apache.pig.data.DataType.INTEGER);
 		playFields[RetrosheetLoader.PLAY_RESULT] = new FieldSchema("play_result", org.apache.pig.data.DataType.CHARARRAY);
 		playFields[RetrosheetLoader.PLAY_RBIS_ON_PLAY] = new FieldSchema("rbis_on_play", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_FIELDER] = new FieldSchema("fielder", org.apache.pig.data.DataType.INTEGER);
+		playFields[RetrosheetLoader.PLAY_TRAJECTORY] = new FieldSchema("trajectory", org.apache.pig.data.DataType.CHARARRAY);
 
 		FieldSchema[] gameFields = new FieldSchema[41];
 		
@@ -359,7 +363,7 @@ public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
 	@Override
 	public void prepareToRead(RecordReader reader, PigSplit split) throws IOException
 	{
-		event_pattern = Pattern.compile("([KSDTW]|HR|WP|HP)?([1-9]+)?(?:/((?:SH)?B?[GLPF]+)?([1-9]+M?[XL]?[DS]?F?))?(?:\\.(.*))?");
+		event_pattern = Pattern.compile("([KSDTW]|IW|HR|WP|HP|DGR|NP)?([1-9]?[1-9]?[(1)]*)?(?:/[1-9]*[C]?)?(?:/((?:SH)?B?[GLPF]+\\+?(/IPHR)?)?([1-9]*[LM]?[M]?[RL]?[XL]?[DS]?F?W?))?(/R[1-9])?(?:\\.(.*))?");
 		this.reader = reader;
 	}
 
@@ -458,7 +462,7 @@ public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
 						} else if (linetype.equals("play")) {
 							try{
 								/* Play.  Emit an event into the events list, update players on base, update score. */
-								Tuple currentPlay = tupleFactory.newTuple(37);
+								Tuple currentPlay = tupleFactory.newTuple(39);
 								int possible_rbis = 0;
 
 								/* We can set event of game now.  at-bat has to wait until we parse out stolen bases, etc. */
@@ -494,7 +498,11 @@ public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
 								currentPlay.set(RetrosheetLoader.PLAY_LEFTFIELDER, defense[7].player_id);
 								currentPlay.set(RetrosheetLoader.PLAY_CENTERFIELDER, defense[8].player_id);
 								currentPlay.set(RetrosheetLoader.PLAY_RIGHTFIELDER, defense[9].player_id);
-								currentPlay.set(RetrosheetLoader.PLAY_DESIGNATED_HITTER, defense[10].player_id);
+
+								if (defense.length >=11 && defense[10] != null && defense[10].player_id != null)
+								  currentPlay.set(RetrosheetLoader.PLAY_DESIGNATED_HITTER, defense[10].player_id);
+								else
+								  currentPlay.set(RetrosheetLoader.PLAY_DESIGNATED_HITTER, "");
 								
 								/* Set the runners on base */
 								currentPlay.set(RetrosheetLoader.PLAY_RUNNER_ON_FIRST, runner_on_first);
@@ -538,7 +546,7 @@ public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
 									System.err.println("Couldn't parse event data: " + elems[6]);
 								} else {
 									/* Figure out player movement so we can update everything in order */
-									if(m.group(5) != null && !m.group(5).equals("")) {
+									if(m.groupCount() >= 6 && m.group(5) != null && !m.group(5).equals("")) {
 										/* We have some player movement */
 										String[] runner_mvmt = m.group(5).split(";");
 										/* Scan the whole thing in case the movement is out of order */
@@ -626,7 +634,7 @@ public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
 											defense[1].pitcher_hits_allowed++;
 											current_player.rbis+=possible_rbis;
 											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Single");
-										} else if (m.group(1).equals("D")) {
+										} else if (m.group(1).equals("D") || m.group(1).equals("DGR")) {
 											runner_on_second = current_batter;	
 											defense[1].pitcher_hits_allowed++;
 											current_player.rbis+=possible_rbis;
@@ -653,7 +661,7 @@ public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
 										} else if (m.group(1).equals("WP")) {
 											defense[1].pitcher_wild_pitches++;
 											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Wild pitch");
-										} else if (m.group(1).equals("W")) {
+										} else if (m.group(1).equals("W") || m.group(1).equals("IW")) {
 											runner_on_first = current_batter;	
 											defense[1].pitcher_walks_allowed++;
 											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Walk");
@@ -661,13 +669,36 @@ public class RetrosheetLoader extends LoadFunc implements LoadMetadata {
 											defense[1].pitcher_strikeouts++;
 											current_player.strikeouts_so_far++;
 											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Strikeout");
+										} else if (m.group(1).equals("NP")) {
+											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "No Play");
 										} else if (m.group(1).equals("")) {
 											/* Out */
 											current_player.outs_so_far++;
+											currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Out");
 										}
+										if (m.group(2) != null) 
+											// This is fielder - 1-9
+											currentPlay.set(RetrosheetLoader.PLAY_FIELDER, m.group(2));
+										else
+											currentPlay.set(RetrosheetLoader.PLAY_FIELDER,"0");
+										if (m.group(3) != null) {
+											// This is type of ball hit:
+											//  "L" line drive, "G" grounder,etc
+											switch(m.group(3).charAt(0)) {
+											  case 'L': currentPlay.set(PLAY_TRAJECTORY,"Line drive"); break;
+											  case 'F': currentPlay.set(PLAY_TRAJECTORY,"Fly ball"); break;
+											  case 'G': currentPlay.set(PLAY_TRAJECTORY,"Grounder"); break;
+											  case 'P': currentPlay.set(PLAY_TRAJECTORY,"Pop fly"); break;
+											  case 'B': currentPlay.set(PLAY_TRAJECTORY,"Bunt"); break;
+											  default: currentPlay.set(PLAY_TRAJECTORY,m.group(3));
+											}
+										}
+										else
+											currentPlay.set(PLAY_TRAJECTORY,"0");
 									} else {
 										/* Out */
 										current_player.outs_so_far++;
+										currentPlay.set(RetrosheetLoader.PLAY_RESULT, "Out");
 									}
 									/* Write out rbis and rbis_so_far. */
 									currentPlay.set(RetrosheetLoader.PLAY_RBIS_ON_PLAY, possible_rbis);
