@@ -1,4 +1,4 @@
-mapr-moneyball
+moneyball
 ==============
 
 Pig code for analysis of baseball statistics
